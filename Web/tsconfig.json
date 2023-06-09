@@ -1,0 +1,23 @@
+{
+    "compilerOptions": {
+      "target": "esnext",
+      "module": "esnext",
+      "strict": true,
+      "jsx": "preserve",
+      "moduleResolution": "node",
+      "resolveJsonModule": true,
+      "esModuleInterop": true,
+      "skipLibCheck": true,
+      "noImplicitAny": false,
+      "allowJs": true,
+      "sourceMap": true
+    },
+    "include": [
+      "src/**/*.ts",
+      "src/**/*.vue"
+    ],
+    "exclude": [
+      "node_modules"
+    ]
+  }
+  
