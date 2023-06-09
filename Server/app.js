@@ -57,7 +57,7 @@ app.post('/antiai/api/data', async (req, res) => {
       });
 
       const responseData = response.data.choices[0].message;
-      freeTokens -= len;
+      freeTokens -= 5000;
       updateFreeTokens(freeTokens);
       res.status(200).json(responseData);
     } catch (error) {
