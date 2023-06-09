@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>管理员页面</title>
+  <script>
+    function saveText() {
+      var inputText = document.getElementById("inputText").value;
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", "/antiai/conf/parameter", true);
+      xhr.setRequestHeader("Content-type", "text/plain");
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          alert("保存成功！");
+        } else {
+          alert("保存失败，请重试！");
+        }
+      };
+      xhr.send(inputText);
+    }
+  </script>
+</head>
+<body>
+  <h1>保存文本内容</h1>
+  <textarea id="inputText" rows="4" cols="50"></textarea><br><br>
+  <button onclick="saveText()">保存</button>
+</body>
+</html>

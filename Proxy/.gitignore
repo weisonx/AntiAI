@@ -1,0 +1,10 @@
+logs/
+
+pids/
+temp/
+objs/
+
+.vscode/
+.idea/
+.project
+
