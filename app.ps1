@@ -65,7 +65,7 @@ if ($action -eq "build") {
     Read-Host -Prompt "Build process completed. Press Enter to continue..."
 }
 elseif ($action -eq "run") {
-    MoveAndBuild
+    # MoveAndBuild
     StartNginx
     StartApp
     $monitoring = $true
