@@ -36,6 +36,8 @@ app.post("/antiai/capture-paypal-order", async (req, res) => {
 
 });
 
+// {url:"", prompt:"", coupon:""}
+
 app.post('/antiai/api/data', async (req, res) => {
   const requestData = req.body;
   let len = 0;
@@ -44,8 +46,8 @@ app.post('/antiai/api/data', async (req, res) => {
 
   len = requestData.text.length;
 
-  if (freeTokens < len) {
-    responseData = {content: "可用字符数不足，请充值后重试。"};
+  if(!checkCouponValid(requestData.coupon)) {
+    responseData = {content: "无效的兑换券."};
 
     res.status(200).json(responseData);
   } else {
@@ -89,8 +91,14 @@ server.listen(port, () => {
 });
 
 //antiai接口**************************************************
+function checkCouponValid(coupon)
+{
+  return false;
+}
+
 // 魔鬼字文件路径
 const magicFilePath = 'conf/magic';
+
 function getFreeTokens() {
   let tokens = 0;
   tokens = parseInt(readFileContent('conf/free_tokens'));

@@ -1,6 +1,34 @@
 <template>
   <v-container v-if="showComponent" class="chat-panel">
+    <v-container class="input-container">
+      <v-textarea
+        counter
+        clearable
+        elevation-6
+        clear-icon="mdi-close-circle"
+        :append-inner-icon="couponValue ? 'mdi-send' : 'mdi-send-lock'"
+        rows="1"
+        row-height="5"
+        label="Coupon Code"
+        :rules="couponRules"
+        :model-value="couponValue"
+        v-char-counter
+        @keydown.enter="submitData"
+        @click:append-inner="submitData"
+        @input="updateCouponValue"
+      ></v-textarea>
+    </v-container>
     <v-container class="output-container">
+      <v-container>
+        <v-text-field
+          v-model="promptValue"
+          label="Input your text"
+          :rules="promptRules"
+          counter
+          maxlength="5000"
+          outlined
+        ></v-text-field>
+      </v-container>
       <v-card>
         <v-card-text class="output">
           {{ outputText }}
@@ -13,16 +41,16 @@
         clearable
         elevation-6
         clear-icon="mdi-close-circle"
-        :append-inner-icon="inputValue ? 'mdi-send' : 'mdi-send-lock'"
+        :append-inner-icon="promptValue ? 'mdi-send' : 'mdi-send-lock'"
         rows="4"
         row-height="5"
-        label="Input your text."
+        label="Input your text"
         :rules="rules"
-        :model-value="inputValue"
+        :model-value="promptValue"
         v-char-counter
         @keydown.enter="submitData"
         @click:append-inner="submitData"
-        @input="updateInputValue"
+        @input="updatePromptValue"
       ></v-textarea>
     </v-container>
   </v-container>
@@ -50,18 +78,24 @@ export default defineComponent({
     const outputText = ref("");
     const additionalData = ref("");
     const rules = ref([(v) => v.length <= 5000 || "最多输入5000个字符"]);
-    const inputValue = ref("");
+    const promptValue = ref("");
+    const couponValue = ref("");
     const showComponent = ref(true);
 
-    const updateInputValue = (event) => {
-      inputValue.value = event.target.value;
+    const updatePromptValue = (event) => {
+      promptValue.value = event.target.value;
+    };
+
+    const updateCouponValue = (event) => {
+      couponValue.value = event.target.value;
     };
 
     const submitData = async () => {
-      if (inputValue.value) {
+      if (promptValue.value) {
         const requestData = {
           url: "/antiai/api/data", // Replace with your API endpoint
-          text: inputValue.value,
+          text: promptValue.value,
+          coupon: couponValue.value,
         };
 
         try {
@@ -71,7 +105,8 @@ export default defineComponent({
         } catch (error) {
           console.error(error);
         }
-        inputValue.value = "";
+        promptValue.value = "";
+        couponValue.value = "";
       }
     };
 
@@ -81,7 +116,8 @@ export default defineComponent({
       if (to.path !== "/") {
         outputText.value = "";
         additionalData.value = "";
-        inputValue.value = "";
+        promptValue.value = "";
+        couponValue.value = "";
         showComponent.value = false; // 隐藏组件
       } else {
         showComponent.value = true; // 显示组件
@@ -94,9 +130,13 @@ export default defineComponent({
       additionalData,
       submitData,
       rules,
-      inputValue,
-      updateInputValue,
-      showComponent
+      promptValue,
+      couponValue,
+      updatePromptValue,
+      updateCouponValue,
+      showComponent,
+      promptRules: [(v) => v.length <= 5000 || "最多输入5000个字符"],
+      couponRules: [(v) => v.length === 64 || "请输入64位字符"],
     };
   },
 });
@@ -108,16 +148,22 @@ export default defineComponent({
   min-height: 100vh;
 }
 
+.input-container {
+  width: calc(90% - 10%);
+  max-width: 400px;
+  height: 10vh;
+}
+
 .output-container {
   width: calc(90% - 10%);
   max-width: 400px;
-  height: 70vh;
+  height: 60vh;
 }
 
 .output {
   width: calc(90% - 10%);
   max-width: 400px;
-  height: 65vh;
+  height: 55vh;
 }
 
 .floating-textarea {
