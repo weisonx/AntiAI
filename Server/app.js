@@ -2,17 +2,8 @@
 const http = require('http');
 const fs = require('fs');
 const express = require('express');
-const { Configuration, OpenAIApi } = require("openai");
-
-const {
-  createCouponDatabase,
-  insertCoupon,
-  markCouponAsUsed,
-  markCouponAsSold,
-  isCouponUsed,
-  findUnusedCoupon,
-  checkCouponExistence
-} = require('./couponDatabase');
+const { Configuration, OpenAIApi } = require("openai")
+const coupon = require('./couponDatabase');
 
 //API KEY
 const configuration = new Configuration({
@@ -54,10 +45,10 @@ app.post('/antiai/api/data', async (req, res) => {
   let responseData = '';
 
   len = requestData.text.length;
-  const isExist = await checkCouponExistence(requestData.coupon);
+  const isExist = await coupon.checkCouponExistence(requestData.coupon);
   if (isExist)
   {
-    const isUsed = await isCouponUsed(requestData.coupon);
+    const isUsed = await coupon.isCouponUsed(requestData.coupon);
     if (isUsed) {
       const errorMessage = `无效的兑换券: ${requestData.coupon}`;
       responseData = { content: errorMessage };

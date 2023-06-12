@@ -10,6 +10,7 @@
    
  
 运行
+配置mysql环境：user:antiai password:35gd2hyqn database:couponDatabase
 打开powershell，执行
   app.ps1 或 app.ps1 run
 打开浏览器，输入http://127.0.0.1
