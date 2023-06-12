@@ -3,13 +3,14 @@ const crypto = require('crypto');
 
 // 生成兑换券码
 function generateCouponCode() {
-  const randomBytes = crypto.randomBytes(32); // 生成32字节的随机字节序列
-  const couponCode = randomBytes.toString('base64') // 将随机字节序列转换为Base64编码
-    .replace(/\+/g, '-') // 替换+为-
-    .replace(/\//g, '_') // 替换/为_
-    .replace(/=+$/, ''); // 去除末尾的=
-
-  return couponCode;
+    const randomBytes = crypto.randomBytes(48); // 生成48字节的随机字节序列
+    const couponCode = randomBytes.toString('base64') // 将随机字节序列转换为Base64编码
+      .replace(/\+/g, '-') // 替换+为-
+      .replace(/\//g, '_') // 替换/为_
+      .replace(/=+$/, '') // 去除末尾的=
+      .slice(0, 64); // 截取前64个字符
+  
+    return couponCode;
 }
 
 // 创建连接池
@@ -170,13 +171,32 @@ function findUnusedCoupon() {
   });
 }
 
+// 检查兑换券是否存在
+function checkCouponExistence(code) {
+    const selectQuery = `
+      SELECT EXISTS(SELECT 1 FROM coupons WHERE code = ?) AS existence
+    `;
+  
+    return new Promise((resolve, reject) => {
+      pool.query(selectQuery, [code], (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results[0].existence === 1);
+        }
+      });
+    });
+}
+  
 module.exports = {
-  createCouponDatabase,
-  insertCoupon,
-  deleteCoupon,
-  markCouponAsUsed,
-  markCouponAsSold,
-  markCouponAsNotSold,
-  isCouponUsed,
-  findUnusedCoupon
+createCouponDatabase,
+insertCoupon,
+deleteCoupon,
+markCouponAsUsed,
+markCouponAsSold,
+markCouponAsNotSold,
+isCouponUsed,
+findUnusedCoupon,
+checkCouponExistence // 添加新的接口
 };
+  

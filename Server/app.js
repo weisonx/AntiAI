@@ -4,6 +4,15 @@ const fs = require('fs');
 const express = require('express');
 const { Configuration, OpenAIApi } = require("openai");
 
+const {
+  createCouponDatabase,
+  insertCoupon,
+  markCouponAsUsed,
+  markCouponAsSold,
+  isCouponUsed,
+  findUnusedCoupon,
+  checkCouponExistence
+} = require('./couponDatabase');
 
 //API KEY
 const configuration = new Configuration({
@@ -41,31 +50,41 @@ app.post("/antiai/capture-paypal-order", async (req, res) => {
 app.post('/antiai/api/data', async (req, res) => {
   const requestData = req.body;
   let len = 0;
-  let freeTokens = getFreeTokens();
+  // let freeTokens = getFreeTokens();
   let responseData = '';
 
   len = requestData.text.length;
-
-  if(!checkCouponValid(requestData.coupon)) {
-    responseData = {content: "无效的兑换券."};
-
-    res.status(200).json(responseData);
-  } else {
-    requestData.text = getMagic() + requestData.text;
-    try {
-      const response = await openai.createChatCompletion({
-        model: "gpt-3.5-turbo",
-        messages: [{ role: "user", content: requestData.text }],
-      });
-
-      const responseData = response.data.choices[0].message;
-      freeTokens -= 5000;
-      updateFreeTokens(freeTokens);
+  const isExist = await checkCouponExistence(requestData.coupon);
+  if (isExist)
+  {
+    const isUsed = await isCouponUsed(requestData.coupon);
+    if (isUsed) {
+      const errorMessage = `无效的兑换券: ${requestData.coupon}`;
+      responseData = { content: errorMessage };
       res.status(200).json(responseData);
-    } catch (error) {
-      console.error('OpenAI API request error:', error);
-      res.status(500).json(`OpenAI API request error: ${error}`);
     }
+    else {
+      requestData.text = getMagic() + requestData.text;
+      try {
+        const response = await openai.createChatCompletion({
+          model: "gpt-3.5-turbo",
+          messages: [{ role: "user", content: requestData.text }],
+        });
+  
+        const responseData = response.data.choices[0].message;
+        // freeTokens -= 5000;
+        // updateFreeTokens(freeTokens);
+        res.status(200).json(responseData);
+      } catch (error) {
+        console.error('OpenAI API request error:', error);
+        res.status(500).json(`OpenAI API request error: ${error}`);
+      }
+    }
+  }
+  else {
+    const errorMessage = `兑换券不存在: ${requestData.coupon}`;
+    responseData = { content: errorMessage };
+    res.status(200).json(responseData);
   }
 });
 
@@ -91,10 +110,6 @@ server.listen(port, () => {
 });
 
 //antiai接口**************************************************
-function checkCouponValid(coupon)
-{
-  return false;
-}
 
 // 魔鬼字文件路径
 const magicFilePath = 'conf/magic';

@@ -1,2 +1,5 @@
 
 Proxy/logs/nginx.pid
+Proxy/logs/access.log
+Proxy/logs/access.log
+Proxy/logs/error.log
