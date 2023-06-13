@@ -82,7 +82,7 @@ app.post('/antiai/api/data', async (req, res) => {
 app.post('/antiai/conf/parameter', async (req, res) => {
   const data = req.body;
 
-  fs.writeFile(magicFilePath, data, err => {
+  fs.writeFile(magicFilePath, JSON.stringify(data), err => {
     if (err) {
       res.status(500).json(`Error writing to file: ${err}`);
     } else {
